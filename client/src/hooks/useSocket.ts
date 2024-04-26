@@ -1,19 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
 
 export const useSocket = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const [me, setMe] = useState("");
   const [roomId, setRoomId] = useState<string>("");
   const [isConnected, setIsConnected] = useState(false);
   const [participants, setParticipants] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
-    setSocket(newSocket);
+    socketRef.current = io("http://localhost:3000");
 
-    newSocket.on("connect", () => {
+    socketRef.current.on("connect", () => {
+      const id = socketRef.current?.id || "";
+      setMe(id);
       setIsConnected(true);
     });
 
@@ -25,28 +27,28 @@ export const useSocket = () => {
       navigate(`/room/${newRoomId}`);
     };
 
-    newSocket.on("room-created", roomCreated);
-    newSocket.on("updateParticipants", updateParticipants);
+    socketRef.current.on("room-created", roomCreated);
+    socketRef.current.on("updateParticipants", updateParticipants);
 
     return () => {
-      newSocket.off("room-created", roomCreated);
-      newSocket.off("updateParticipants", updateParticipants);
-      newSocket.disconnect();
+      socketRef.current?.off("room-created", roomCreated);
+      socketRef.current?.off("updateParticipants", updateParticipants);
+      socketRef.current?.disconnect();
     };
   }, []);
 
   const createRoom = useCallback(() => {
-    if (!isConnected || !socket?.id) return;
-    socket?.emit("createRoom");
-  }, [isConnected, socket?.id]);
+    if (!isConnected) return;
+    socketRef.current?.emit("createRoom");
+  }, [isConnected]);
 
   const joinRoom = useCallback(
     (joinId: string) => {
-      if (!isConnected || !socket?.id) return;
-      socket.emit("joinRoom", { roomId: joinId });
+      if (!isConnected) return;
+      socketRef.current?.emit("joinRoom", { roomId: joinId });
     },
-    [isConnected, socket?.id]
+    [isConnected]
   );
 
-  return { socket, participants, createRoom, joinRoom, roomId };
+  return { me, participants, createRoom, joinRoom, roomId };
 };

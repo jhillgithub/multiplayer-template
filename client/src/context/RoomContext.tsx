@@ -1,9 +1,8 @@
 import { ReactNode, createContext, useContext } from "react";
-import { Socket } from "socket.io-client";
 import { useSocket } from "../hooks/useSocket";
 
 type RoomContextType = {
-  socket: Socket | null;
+  me: string;
   createRoom: (roomId?: string) => void;
   joinRoom: (roomId: string) => void;
   participants: string[];
@@ -22,12 +21,10 @@ export const useRoomContext = () => {
 };
 
 export const RoomContextProvider = ({ children }: { children: ReactNode }) => {
-  const { socket, participants, createRoom, joinRoom } = useSocket();
+  const { me, participants, createRoom, joinRoom } = useSocket();
 
   return (
-    <RoomContext.Provider
-      value={{ socket, participants, createRoom, joinRoom }}
-    >
+    <RoomContext.Provider value={{ me, participants, createRoom, joinRoom }}>
       {children}
     </RoomContext.Provider>
   );
