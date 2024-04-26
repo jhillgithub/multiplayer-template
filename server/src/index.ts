@@ -16,8 +16,6 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('user is connected', socket.id);
-
   roomHandler({ socket, io });
 });
 

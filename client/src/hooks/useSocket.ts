@@ -12,7 +12,6 @@ export const useSocket = () => {
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
     setSocket(newSocket);
-    console.log({ newSocket });
 
     newSocket.on("connect", () => {
       setIsConnected(true);
@@ -22,7 +21,6 @@ export const useSocket = () => {
       setParticipants([...currentParticipants]);
     };
     const roomCreated = ({ roomId: newRoomId }: { roomId: string }) => {
-      console.log("Room created");
       setRoomId(newRoomId);
       navigate(`/room/${newRoomId}`);
     };
@@ -39,11 +37,7 @@ export const useSocket = () => {
 
   const createRoom = useCallback(() => {
     if (!isConnected || !socket?.id) return;
-
-    console.log("before return Emitting createRoom event");
-    console.log("socket ", socket?.id, socket?.connected);
     socket?.emit("createRoom");
-    console.log("After Emitting createRoom event");
   }, [isConnected, socket?.id]);
 
   const joinRoom = useCallback(
