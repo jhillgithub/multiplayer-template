@@ -78,7 +78,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/jhillgithub/mystic-marsh.git
+   git clone https://github.com/jhillgithub/multiplayer-template.git
    ```
 2. Install NPM packages for client and then server
    ```sh
